@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+import { sendVerificationEmail } from "../middleware/email_config";
 import { createUser, getUser } from "../model/user";
 
 const secret = process.env.SECRET;
@@ -34,8 +35,7 @@ const validateToken = (token) => {
 
 const signup = async (req, res) => {
   try {
-    const { body = {} } = req;
-    const { password = "" } = body;
+    const {email,password,}=req.body
 
     const verificationToken= crypto.randomBytes(32).toString('hex')
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,6 +43,8 @@ const signup = async (req, res) => {
     body.verificationToken=verificationToken
 
     const user = await createUser(body);
+
+    await sendVerificationEmail(email,verificationToken)
     const token = generateToken(user);
     return res.status(201).json({ token });
   } catch (error) {
@@ -132,7 +134,7 @@ const verifyEmail = async (req, res) => {
     await user.save();
     return res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
-    return next(error);
+    res.status(500).json({message:"Error verifying email",error})
   }
 };
 
