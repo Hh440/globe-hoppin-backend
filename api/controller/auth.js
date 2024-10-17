@@ -36,8 +36,12 @@ const signup = async (req, res) => {
   try {
     const { body = {} } = req;
     const { password = "" } = body;
+
+    const verificationToken= crypto.randomBytes(32).toString('hex')
     const hashedPassword = await bcrypt.hash(password, 10);
     body.password = hashedPassword;
+    body.verificationToken=verificationToken
+
     const user = await createUser(body);
     const token = generateToken(user);
     return res.status(201).json({ token });

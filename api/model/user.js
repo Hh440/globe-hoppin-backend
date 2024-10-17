@@ -38,6 +38,7 @@ const UserProfileSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    verficationCode:String,
     phoneNumber: {
       type: String,
       required: [true, "Phone number is required"],
